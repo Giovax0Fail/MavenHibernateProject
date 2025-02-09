@@ -1,6 +1,5 @@
 package it.library.spring.service;
 
-
 import it.library.spring.entity.Book;
 import it.library.spring.model.repository.BookRepository;
 import org.junit.Before;
@@ -10,13 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @RunWith(MockitoJUnitRunner.class)
@@ -30,22 +25,67 @@ public class BookServiceTest {
 
     private Book book;
 
-
     @Before
     public void setUp() {
+        book = new Book("Il gran vivone", "Pasqualino", "9780141036136", 1197);
+    }
 
+    @Test
+    public void addBookValidISBN() {
+        Book bookToAdd = new Book("Il gran vivone", "Pasqualino", "9780141036136", 1197);
+        bookToAdd.setId(anyInt());
 
-        book =  new Book("Il gran vivone", "Pasqualino", "9780141036136", 1197);
-        /*book.setId(40);*/
+        when(bookRepository.findByBookISBN(bookToAdd.getBookISBN())).thenReturn(null);
+        when(bookRepository.save(bookToAdd)).thenReturn(bookToAdd);
+
+        Book addedBook = bookService.addBook(bookToAdd);
+        assertNotNull(addedBook);
     }
 
     @Test
     public void testGetBookById() {
-
         when(bookRepository.findById(anyInt())).thenReturn(book);
         Book bookFoundById = bookService.getBookById(1);
-        System.out.println(bookFoundById);
         assertEquals(book.getBookISBN(), bookFoundById.getBookISBN());
     }
+
+    @Test
+    public void updateBook() {
+        Book oldBook = new Book("Il vecchio libro", "Autore", "9780141036136", 1197);
+        oldBook.setId(30);
+        Book newBook = new Book("Il nuovo libro", "Autore", "9780141036136", 1197);
+        newBook.setId(30);
+
+        when(bookRepository.findByBookISBNAndIdNot(newBook.getBookISBN(), newBook.getId())).thenReturn(null);
+        when(bookRepository.findById(oldBook.getId())).thenReturn(oldBook);
+        when(bookRepository.save(newBook)).thenReturn(newBook);
+
+        Book updatedBook = bookService.updateBook(newBook);
+
+        assertNotNull(updatedBook);
+        assertEquals(newBook.getBookName(), updatedBook.getBookName());
+        assertEquals(newBook.getBookAuthor(), updatedBook.getBookAuthor());
+        assertEquals(newBook.getBookISBN(), updatedBook.getBookISBN());
+        assertEquals(newBook.getId(), updatedBook.getId());
+    }
+
+    @Before
+    public void setUpBookToDelete() {
+        book = new Book("Il gran vivone", "Pasqualino", "9780141036136", 1197);
+        book.setId(1);
+    }
+
+    @Test
+    public void deleteBook() {
+        when(bookRepository.findById(1)).thenReturn(book);
+        bookService.deleteBook(1);
+        verify(bookRepository, times(1)).delete(1);
+
+        when(bookRepository.findById(1)).thenReturn(null);
+        Book emptyBook = bookRepository.findById(1);
+        assertNull(emptyBook);
+
+    }
+
 
 }

@@ -21,15 +21,15 @@ public class BookController {
     BookService bookService;
 
     @RequestMapping(value = "/getAllBooks", method = RequestMethod.GET, headers = "Accept=application/json")
-    public List<Book> getAllBooks(Model model){
+    public List<Book> getAllBooks(){
         List<Book> listOfBooks = bookService.getAllBooks();
-        model.addAttribute("book",new Book());
-        model.addAttribute("listofBooks", listOfBooks);
+        /*model.addAttribute("book",new Book());
+        model.addAttribute("listofBooks", listOfBooks);*/
         return listOfBooks;
     }
     @RequestMapping(value = "/", method = RequestMethod.GET, headers = "Accept=application/json")
     public String goToHomePage() {
-        return "redirect:/getAllbooks";
+        return "redirect:/getAllBooks";
     }
 
     @RequestMapping(value="/{id}", method=RequestMethod.GET, headers = "Accept=application/json")
