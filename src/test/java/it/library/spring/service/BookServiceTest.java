@@ -2,6 +2,8 @@ package it.library.spring.service;
 
 import it.library.spring.entity.Book;
 import it.library.spring.model.repository.BookRepository;
+import it.library.spring.model.specifications.BookSpecifications;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,7 +11,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static it.library.spring.model.specifications.BookSpecifications.isWithin;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -19,6 +26,8 @@ public class BookServiceTest {
 
     @Mock
     BookRepository bookRepository;
+
+
 
     @InjectMocks
     BookService bookService;
@@ -47,6 +56,17 @@ public class BookServiceTest {
         when(bookRepository.findById(anyInt())).thenReturn(book);
         Book bookFoundById = bookService.getBookById(1);
         assertEquals(book.getBookISBN(), bookFoundById.getBookISBN());
+    }
+
+    @Test public void getAllBooksSuccess(){
+        List<Book> bookList = Arrays.asList(
+                new Book("Il gran vivone", "Pasqualino", "9780141036136", 1197),
+                new Book("La casa del piacere", "Maria Rossi", "9780141036143", 256)
+        );
+        when(bookRepository.findAll()).thenReturn(bookList);
+        List allBooks = bookService.getAllBooks();
+        assertNotNull(allBooks);
+
     }
 
     @Test
@@ -84,6 +104,25 @@ public class BookServiceTest {
         when(bookRepository.findById(1)).thenReturn(null);
         Book emptyBook = bookRepository.findById(1);
         assertNull(emptyBook);
+
+    }
+
+    @Test
+    public void filterBookSuccess(){
+        List<Book> bookList = Arrays.asList(
+                new Book("Il gran vivone", "Pasqualino", "9780141036136", 1197),
+                new Book("La casa del piacere", "Maria Rossi", "9780141036143", 256),
+                new Book("L'arte della guerra", "Sun Tzu", "9780141036150", 132),
+                new Book("Il codice Da Vinci", "Dan Brown", "9780141036167", 689),
+                new Book("La ragazza del treno", "Paula Hawkins", "9780141036174", 395),
+                new Book("1984", "George Orwell", "9780141036181", 328)
+        );
+        Book bookToFind = new Book("1984", "George Orwell", "9780141036181", 328);
+
+        when(bookRepository.findAll(any(Specification.class))).thenReturn(Arrays.asList(bookToFind));
+
+         List<Book> bookListFound = bookService.filterBooks(bookToFind);
+        assertNotNull(bookListFound);
 
     }
 

@@ -67,7 +67,7 @@ public class BookController {
     }
 
     @RequestMapping(value = "/deleteBook/{id}", method = RequestMethod.DELETE, headers = "Accept=application/json")
-    public void deleteCustomer(@PathVariable("id") Integer id) {
+    public void deleteBook(@PathVariable("id") Integer id) {
         bookService.deleteBook(id);
 
     }

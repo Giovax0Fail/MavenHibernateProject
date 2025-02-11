@@ -5,13 +5,14 @@ import it.library.spring.exception.BookISBNConflictException;
 import it.library.spring.exception.InvalidISBNException;
 /*import it.library.spring.model.Book;*/
 import it.library.spring.model.repository.BookRepository;
+import it.library.spring.model.specifications.BookSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import it.library.spring.exception.BookNotFoundException;
 import java.util.List;
 import java.util.MissingFormatWidthException;
 
-import static it.library.spring.model.specifications.BookSpecifications.isWithin;
+
 
 @Service("bookService")
 public class BookService {
@@ -19,6 +20,8 @@ public class BookService {
     BookDao bookDao;*/
     @Autowired
     BookRepository bookRepository;
+
+
     public List<Book> getAllBooks() {
         List<Book> bookList = bookRepository.findAll();
 
@@ -108,7 +111,7 @@ public class BookService {
 
     public List<Book> filterBooks(Book book) {
         checkEmptyString(book);
-        List<Book> filteredBooks = bookRepository.findAll(isWithin(book));
+        List<Book> filteredBooks = bookRepository.findAll(BookSpecifications.isWithin(book)); //metodo statico non ha bisogno di ogg
         if(filteredBooks.isEmpty()){
             System.out.println("Libro con i caratteri interessati non trovato");
         }
